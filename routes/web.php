@@ -1,57 +1,38 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PortfolioController;
+use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes — FolioFlow
-|--------------------------------------------------------------------------
-*/
-
-// Home page
+// 1. FolioFlow Home Page
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Portfolio Routes (all handled by PortfolioController)
-|--------------------------------------------------------------------------
-*/
+// 2. Redirect the default Breeze dashboard to our portfolios page
+Route::get('/dashboard', function () {
+    return redirect()->route('portfolio.index');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Manage / list all portfolios
-Route::get('/portfolios', [PortfolioController::class, 'index'])
-    ->name('portfolio.index');
+// 3. All Portfolio Routes (Protected by Login)
+Route::middleware('auth')->group(function () {
+    Route::get('/portfolios', [PortfolioController::class, 'index'])->name('portfolio.index');
+    Route::get('/portfolios/create', [PortfolioController::class, 'create'])->name('portfolio.create');
+    Route::post('/portfolios', [PortfolioController::class, 'store'])->name('portfolio.store');
+    Route::get('/portfolios/{id}/select-template', [PortfolioController::class, 'selectTemplate'])->name('portfolio.selectTemplate');
+    Route::post('/portfolios/{id}/select-template', [PortfolioController::class, 'updateTemplate'])->name('portfolio.updateTemplate');
+    Route::get('/portfolios/{id}/preview', [PortfolioController::class, 'show'])->name('portfolio.show');
+    Route::get('/portfolios/{id}/edit', [PortfolioController::class, 'edit'])->name('portfolio.edit');
+    Route::put('/portfolios/{id}', [PortfolioController::class, 'update'])->name('portfolio.update');
+    Route::delete('/portfolios/{id}', [PortfolioController::class, 'destroy'])->name('portfolio.destroy');
+});
 
-// Create form
-Route::get('/portfolios/create', [PortfolioController::class, 'create'])
-    ->name('portfolio.create');
+// 4. Breeze Profile Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-// Save new portfolio
-Route::post('/portfolios', [PortfolioController::class, 'store'])
-    ->name('portfolio.store');
-
-// Template selection screen
-Route::get('/portfolios/{id}/select-template', [PortfolioController::class, 'selectTemplate'])
-    ->name('portfolio.selectTemplate');
-
-// Save chosen template
-Route::post('/portfolios/{id}/select-template', [PortfolioController::class, 'updateTemplate'])
-    ->name('portfolio.updateTemplate');
-
-// Preview generated portfolio
-Route::get('/portfolios/{id}/preview', [PortfolioController::class, 'show'])
-    ->name('portfolio.show');
-
-// Edit form
-Route::get('/portfolios/{id}/edit', [PortfolioController::class, 'edit'])
-    ->name('portfolio.edit');
-
-// Save edited data
-Route::put('/portfolios/{id}', [PortfolioController::class, 'update'])
-    ->name('portfolio.update');
-
-// Delete portfolio
-Route::delete('/portfolios/{id}', [PortfolioController::class, 'destroy'])
-    ->name('portfolio.destroy');
+// 5. Breeze Auth Routes (Login, Register, Logout)
+require __DIR__.'/auth.php';
