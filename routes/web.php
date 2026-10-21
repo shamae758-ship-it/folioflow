@@ -36,3 +36,5 @@ Route::middleware('auth')->group(function () {
 
 // 5. Breeze Auth Routes (Login, Register, Logout)
 require __DIR__.'/auth.php';
+// force rebuild
+// Force rebuild 2

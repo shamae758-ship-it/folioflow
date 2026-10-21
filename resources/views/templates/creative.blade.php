@@ -50,4 +50,130 @@
         .sticker-skill:nth-child(3n+3) { background: #ddd6fe; }
         .sticker-skill:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #1a1a2e; }
         .projects { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-        .project-card { padding: 28px 26px; border-radius: 24px; color: #fff; position: relative;
+        .project-card { padding: 28px 26px; border-radius: 24px; color: #fff; position: relative; overflow: hidden; transition: transform 0.25s ease; }
+        .project-card:hover { transform: translateY(-6px); }
+        .project-card:nth-child(3n+1) { background: linear-gradient(135deg, #f97316, #fb923c); }
+        .project-card:nth-child(3n+2) { background: linear-gradient(135deg, #ec4899, #f472b6); }
+        .project-card:nth-child(3n+3) { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .project-card::before { content: ""; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+        .project-card h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; position: relative; z-index: 1; }
+        .project-card p { font-size: 0.92rem; opacity: 0.92; position: relative; z-index: 1; }
+        .project-card .project-num { position: absolute; bottom: 12px; right: 20px; font-size: 2.5rem; font-weight: 900; opacity: 0.15; letter-spacing: -0.05em; }
+        .links { display: flex; flex-wrap: wrap; gap: 14px; }
+        .links a { display: inline-flex; align-items: center; gap: 10px; font-size: 0.92rem; font-weight: 700; padding: 12px 24px; border-radius: 999px; background: #1a1a2e; color: #fff; transition: transform 0.2s ease, background 0.2s ease; }
+        .links a:hover { transform: translateY(-3px); background: #ec4899; }
+        .footer { text-align: center; padding: 50px 0 40px; font-size: 0.85rem; color: #8a8a9a; }
+        .footer a { font-weight: 700; color: #ec4899; }
+        .demo-action-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a2e; padding: 12px 24px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; gap: 16px; z-index: 9999; border: 1px solid #243049; }
+        .demo-btn-back { color: #fff; text-decoration: none; font-family: sans-serif; font-size: 14px; font-weight: bold; padding: 8px 16px; border-radius: 8px; border: 1px solid #fff; transition: background 0.2s; }
+        .demo-btn-back:hover { background: rgba(255,255,255,0.1); }
+        .demo-btn-save { color: #fff; text-decoration: none; font-family: sans-serif; font-size: 14px; font-weight: bold; padding: 8px 16px; border-radius: 8px; background: #6366f1; transition: background 0.2s; }
+        .demo-btn-save:hover { background: #4f46e5; }
+        @media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; gap: 40px; } .hero-avatar { justify-self: center; } .hero-avatar .frame { width: 220px; height: 260px; } .hero-avatar .sticker { left: -8px; } .projects { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .hero { padding: 50px 0 40px; } .hero-tag { transform: rotate(0deg); } .about-quote { padding-left: 20px; border-left-width: 5px; font-size: 1.05rem; } .timeline { padding-left: 32px; } .timeline-item::before { left: -28px; } }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="wrapper hero-inner">
+            <div class="hero-text">
+                <span class="hero-tag">✦ Portfolio</span>
+                <h1>Hi, I'm <span class="accent">{{ $portfolio->full_name }}</span></h1>
+                @if ($portfolio->about_me)<p class="bio">{{ Str::limit($portfolio->about_me, 180) }}</p>@endif
+                <div class="hero-cta">
+                    @if ($portfolio->email)<a href="mailto:{{ $portfolio->email }}">✉ {{ $portfolio->email }}</a>@endif
+                    @if ($portfolio->contact_number)<span class="soft">📞 {{ $portfolio->contact_number }}</span>@endif
+                    @if ($portfolio->address)<span class="soft">📍 {{ $portfolio->address }}</span>@endif
+                </div>
+            </div>
+            <div class="hero-avatar">
+                <div class="frame"><img src="{{ $portfolio->profile_picture_url }}" alt="{{ $portfolio->full_name }}"></div>
+                <span class="sticker">Hello there! 👋</span>
+            </div>
+        </div>
+    </section>
+    @if ($portfolio->about_me)
+        <section class="section" style="padding-top: 20px;">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 01 / ABOUT —</span><h2>A little bit <em>about me</em></h2></div>
+                <p class="about-quote">"{{ $portfolio->about_me }}"</p>
+            </div>
+        </section>
+    @endif
+    @if (!empty($portfolio->skills) && count($portfolio->skills) > 0)
+        <section class="section">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 02 / SKILLS —</span><h2>Things I'm <em>good at</em></h2></div>
+                <div class="stickers">
+                    @foreach ($portfolio->skills as $skill) @if (!empty($skill['name']))<span class="sticker-skill">{{ $skill['name'] }}</span>@endif @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    @if (!empty($portfolio->education) && count($portfolio->education) > 0)
+        <section class="section">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 03 / EDUCATION —</span><h2>Where I <em>studied</em></h2></div>
+                <div class="timeline">
+                    @foreach ($portfolio->education as $edu)
+                        @if (!empty($edu['school']) || !empty($edu['degree']))
+                            <div class="timeline-item"><div class="ti-title">{{ $edu['degree'] ?? '' }}</div><div class="ti-sub">{{ $edu['school'] ?? '' }}</div></div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    @if (!empty($portfolio->projects) && count($portfolio->projects) > 0)
+        <section class="section">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 04 / PROJECTS —</span><h2>Things I've <em>built</em></h2></div>
+                <div class="projects">
+                    @php $i = 1; @endphp
+                    @foreach ($portfolio->projects as $project)
+                        @if (!empty($project['title']))
+                            <div class="project-card">
+                                <h3>{{ $project['title'] }}</h3>
+                                @if (!empty($project['description']))<p>{{ $project['description'] }}</p>@endif
+                                <span class="project-num">0{{ $i }}</span>
+                            </div>
+                            @php $i++; @endphp
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    @if (!empty($portfolio->experience) && count($portfolio->experience) > 0)
+        <section class="section">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 05 / EXPERIENCE —</span><h2>Where I've <em>worked</em></h2></div>
+                <div class="timeline">
+                    @foreach ($portfolio->experience as $exp)
+                        @if (!empty($exp['position']) || !empty($exp['company']))
+                            <div class="timeline-item"><div class="ti-title">{{ $exp['position'] ?? '' }}</div><div class="ti-sub">{{ $exp['company'] ?? '' }}</div></div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    @if (!empty($portfolio->social_links) && count($portfolio->social_links) > 0)
+        <section class="section">
+            <div class="wrapper">
+                <div class="section-head"><span class="section-num">— 06 / CONNECT —</span><h2>Let's <em>connect</em></h2></div>
+                <div class="links">
+                    @foreach ($portfolio->social_links as $link)
+                        @if (!empty($link['url']) && !empty($link['label']))<a href="{{ $link['url'] }}" target="_blank" rel="noopener">{{ $link['label'] }} →</a>@endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    <footer class="footer"><div class="wrapper">✦ Generated with <a href="{{ url('/') }}">FolioFlow</a></div></footer>
+    <div class="demo-action-bar">
+        <a href="{{ route('portfolio.selectTemplate', $portfolio->id) }}" class="demo-btn-back">← Change Template</a>
+        <a href="{{ route('portfolio.index') }}" class="demo-btn-save">Save & Finish</a>
+    </div>
+</body>
+</html>
